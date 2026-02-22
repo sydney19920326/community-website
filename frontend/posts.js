@@ -183,5 +183,39 @@ function truncateText(text, maxLength = 150) {
     return text.substring(0, maxLength).trim() + '...';
 }
 
+// Helper function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Render Ilch-style News Box
+function renderNewsBox(post) {
+    return `
+        <article class="news-box">
+            <div class="news-header">
+                <a href="view-post.html?id=${post.id}" class="news-title">${escapeHtml(post.title)}</a>
+                <span class="category-badge" style="background: ${getCategoryColor(post.category)};">
+                    ${post.category}
+                </span>
+            </div>
+            <div class="news-meta">
+                Geschrieben von <strong>${escapeHtml(post.authorName)}</strong> am ${formatDate(post.createdAt)}
+            </div>
+            <div class="news-body">
+                ${post.imageUrl ? `<img src="${post.imageUrl}" alt="News Image" style="max-width: 100%; border-radius: var(--radius-sm); margin-bottom: var(--spacing-md); display: block;">` : ''}
+                ${escapeHtml(truncateText(post.content, 400)).replace(/\n/g, '<br>')}
+            </div>
+            <div class="news-footer">
+                <a href="view-post.html?id=${post.id}" class="btn btn-secondary btn-sm">Mehr lesen...</a>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                    Kommentare: 0 | Aufrufe: ${Math.floor(Math.random() * 50)}
+                </span>
+            </div>
+        </article>
+    `;
+}
+
 // Initialize posts on load
 initializePosts();

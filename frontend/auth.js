@@ -203,7 +203,176 @@ window.addEventListener('click', (e) => {
 
 // Initialize everything
 initializeUsers();
-document.addEventListener('DOMContentLoaded', injectHeader);
+document.addEventListener('DOMContentLoaded', () => {
+  injectHeader();
+  if (document.querySelector('.container:not(.navbar-container)')) {
+    injectPortalLayout();
+  }
+});
+
+// Ilch-Style Portal Layout Injection
+function injectPortalLayout() {
+  const mainContainer = document.querySelector('.container:not(.navbar-container)');
+  if (!mainContainer || mainContainer.classList.contains('admin-layout')) return;
+
+  // Create portal wrapper if not already there
+  if (!document.querySelector('.portal-container')) {
+    const portalWrapper = document.createElement('div');
+    portalWrapper.className = 'portal-container';
+
+    const mainContent = document.createElement('main');
+    mainContent.className = 'portal-main';
+
+    // Move children to main content
+    while (mainContainer.firstChild) {
+      mainContent.appendChild(mainContainer.firstChild);
+    }
+
+    const sidebar = document.createElement('aside');
+    sidebar.className = 'portal-sidebar';
+    sidebar.id = 'portal-sidebar';
+
+    portalWrapper.appendChild(mainContent);
+    portalWrapper.appendChild(sidebar);
+    mainContainer.appendChild(portalWrapper);
+
+    renderSidebarWidgets();
+  }
+}
+
+function renderSidebarWidgets() {
+  const sidebar = document.getElementById('portal-sidebar');
+  if (!sidebar) return;
+
+  sidebar.innerHTML = `
+        ${renderSidebarBox('Shoutbox', '<div id="shoutbox-root"></div>', '💬')}
+        ${renderSidebarBox('Statistiken', renderStatsBox(), '📊')}
+        ${renderSidebarBox('Partner', renderPartners(), '🤝')}
+        ${renderSidebarBox('Wer ist online', renderOnlineBox(), '👥')}
+    `;
+
+  // Initialize individual widgets
+  initializeShoutbox();
+}
+
+function renderSidebarBox(title, content, icon = '') {
+  return `
+        <div class="sidebar-box">
+            <div class="sidebar-box-header">
+                ${icon ? `<span>${icon}</span>` : ''}
+                <h3 class="sidebar-box-title">${title}</h3>
+            </div>
+            <div class="sidebar-box-content">
+                ${content}
+            </div>
+        </div>
+    `;
+}
+
+function renderStatsBox() {
+  const users = JSON.parse(localStorage.getItem('community_users') || '[]');
+  const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  return `
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+            <div style="display: flex; justify-content: space-between;">
+                <span>Mitglieder:</span>
+                <strong>${users.length}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Beiträge:</span>
+                <strong>${posts.length}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Heute:</span>
+                <strong>${posts.filter(p => new Date(p.createdAt).toDateString() === new Date().toDateString()).length}</strong>
+            </div>
+        </div>
+    `;
+}
+
+function renderPartners() {
+  const partners = [
+    { name: 'Ilch.de', url: 'https://www.ilch.de', banner: 'https://www.ilch.de/images/banners/ilch_88x31.gif' },
+    { name: 'ClanDesigns', url: '#' },
+    { name: 'Gaming Network', url: '#' }
+  ];
+  return `
+        <div class="partner-list">
+            ${partners.map(p => `
+                <a href="${p.url}" class="partner-item" title="${p.name}" target="_blank">
+                    ${p.banner ? `<img src="${p.banner}" alt="${p.name}" class="partner-banner">` : p.name}
+                </a>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderOnlineBox() {
+  const user = AuthState.getCurrentUser();
+  return `
+        <div style="font-size: 0.9rem;">
+            <div style="margin-bottom: 0.5rem; color: var(--text-secondary);">
+                ${user ? `Angemeldet als: <strong style="color: var(--primary);">${user.username}</strong>` : 'Gäste online: 4'}
+            </div>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                <span class="badge badge-admin">admin</span>
+                <span class="badge badge-user">user</span>
+            </div>
+        </div>
+    `;
+}
+
+// Shoutbox Logic (Simplified)
+function initializeShoutbox() {
+  const root = document.getElementById('shoutbox-root');
+  if (!root) return;
+
+  const shouts = JSON.parse(localStorage.getItem('shouts') || '[{"author":"Admin","text":"Willkommen im neuen Portal!","time":"' + new Date().toISOString() + '"}]');
+
+  root.innerHTML = `
+        <div class="shoutbox-container">
+            <div class="shoutbox-messages" id="shoutbox-messages">
+                ${shouts.map(s => `
+                    <div class="shout-item">
+                        <span class="shout-time">${new Date(s.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span class="shout-author">${s.author}:</span>
+                        <span class="shout-text">${s.text}</span>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="shoutbox-input-group">
+                <input type="text" id="shout-input" class="shoutbox-input" placeholder="Nachricht...">
+                <button onclick="sendShout()" class="btn btn-primary btn-sm">OK</button>
+            </div>
+        </div>
+    `;
+
+  // Auto-scroll
+  const msgContainer = document.getElementById('shoutbox-messages');
+  if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
+}
+
+window.sendShout = function () {
+  const input = document.getElementById('shout-input');
+  const user = AuthState.getCurrentUser();
+  if (!input || !input.value.trim()) return;
+  if (!user) { alert('Bitte einloggen!'); return; }
+
+  const message = input.value.trim();
+  const shouts = JSON.parse(localStorage.getItem('shouts') || '[]');
+  shouts.push({
+    author: user.username,
+    text: message,
+    time: new Date().toISOString()
+  });
+
+  // Keep last 20
+  if (shouts.length > 20) shouts.shift();
+
+  localStorage.setItem('shouts', JSON.stringify(shouts));
+  input.value = '';
+  initializeShoutbox();
+};
 
 // Legacy support for existing pages
 function updateNavigation() { injectHeader(); }

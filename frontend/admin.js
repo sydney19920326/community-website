@@ -58,10 +58,114 @@ function showTab(tabName) {
   // Load section specific data
   if (tabName === 'users') loadUsers();
   if (tabName === 'posts') loadPosts();
+  if (tabName === 'modules') loadModulesTab();
   if (tabName === 'overview') {
     updateStats();
     loadRecentUsers();
   }
+}
+
+// Module Management Logic
+function loadModulesTab() {
+  loadAdminShoutbox();
+  loadAdminPartners();
+}
+
+function loadAdminShoutbox() {
+  const shouts = JSON.parse(localStorage.getItem('shouts') || '[]');
+  const container = document.getElementById('admin-shoutbox-list');
+  if (!container) return;
+
+  if (shouts.length === 0) {
+    container.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Keine Nachrichten vorhanden</td></tr>';
+    return;
+  }
+
+  container.innerHTML = shouts.map((s, index) => `
+        <tr>
+            <td style="font-weight: 600;">${escapeHtml(s.author)}</td>
+            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(s.text)}</td>
+            <td>
+                <button class="action-btn action-btn-danger" onclick="deleteShout(${index})">🗑️</button>
+            </td>
+        </tr>
+    `).reverse().join('');
+}
+
+window.deleteShout = function (index) {
+  const shouts = JSON.parse(localStorage.getItem('shouts') || '[]');
+  shouts.splice(index, 1);
+  localStorage.setItem('shouts', JSON.stringify(shouts));
+  loadAdminShoutbox();
+};
+
+window.clearShoutbox = function () {
+  if (confirm('Wirklich alle Shoutbox-Nachrichten löschen?')) {
+    localStorage.setItem('shouts', JSON.stringify([]));
+    loadAdminShoutbox();
+  }
+};
+
+function loadAdminPartners() {
+  const partners = JSON.parse(localStorage.getItem('partners') || '[]');
+  // Use default partners if none exist
+  if (partners.length === 0 && !localStorage.getItem('partners_initialized')) {
+    const defaultPartners = [
+      { name: 'Ilch.de', url: 'https://www.ilch.de', banner: 'https://www.ilch.de/images/banners/ilch_88x31.gif' }
+    ];
+    savePartners(defaultPartners);
+    localStorage.setItem('partners_initialized', 'true');
+    loadAdminPartners();
+    return;
+  }
+
+  const container = document.getElementById('admin-partners-list');
+  if (!container) return;
+
+  if (partners.length === 0) {
+    container.innerHTML = '<div class="text-center text-muted">Keine Partner vorhanden</div>';
+    return;
+  }
+
+  container.innerHTML = partners.map((p, index) => `
+        <div class="partner-item" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                ${p.banner ? `<img src="${p.banner}" style="height: 20px;">` : '📄'}
+                <span>${escapeHtml(p.name)}</span>
+            </div>
+            <button class="action-btn action-btn-danger" onclick="deletePartner(${index})">🗑️</button>
+        </div>
+    `).join('');
+}
+
+function savePartners(partners) {
+  localStorage.setItem('partners', JSON.stringify(partners));
+}
+
+window.deletePartner = function (index) {
+  const partners = JSON.parse(localStorage.getItem('partners') || '[]');
+  partners.splice(index, 1);
+  savePartners(partners);
+  loadAdminPartners();
+};
+
+// Add Partner Form
+const addPartnerForm = document.getElementById('add-partner-form');
+if (addPartnerForm) {
+  addPartnerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('partner-name').value.trim();
+    const url = document.getElementById('partner-url').value.trim();
+    const banner = document.getElementById('partner-banner').value.trim();
+
+    const partners = JSON.parse(localStorage.getItem('partners') || '[]');
+    partners.push({ name, url, banner });
+    savePartners(partners);
+
+    addPartnerForm.reset();
+    loadAdminPartners();
+    showSuccess(`Partner <strong>${name}</strong> wurde hinzugefügt.`);
+  });
 }
 
 function loadUsers() {

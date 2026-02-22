@@ -38,8 +38,8 @@
             <button class="filter-btn" data-category="Tutorial">Tutorials</button>
         </div>
 
-        <div id="posts-container" class="grid grid-2">
-            <div class="text-center text-muted" style="grid-column: 1 / -1;">
+        <div id="posts-container">
+            <div class="text-center text-muted">
                 Lade Beiträge...
             </div>
         </div>
@@ -63,28 +63,11 @@
             const container = document.getElementById('posts-container');
 
             if (posts.length === 0) {
-                container.innerHTML = '<div class="text-center text-muted" style="grid-column: 1 / -1;">Keine Beiträge gefunden</div>';
+                container.innerHTML = '<div class="text-center text-muted">Keine Beiträge gefunden</div>';
                 return;
             }
 
-            container.innerHTML = posts.map(post => `
-        <div class="post-card" onclick="window.location.href='view-post.html?id=${post.id}'">
-          <div class="post-card-header">
-            <span class="category-badge" style="background: ${getCategoryColor(post.category)};">
-              ${post.category}
-            </span>
-            <span class="post-date">${formatRelativeTime(post.createdAt)}</span>
-          </div>
-          <h3 class="post-title">${escapeHtml(post.title)}</h3>
-          <p class="post-preview">${escapeHtml(truncateText(post.content))}</p>
-          <div class="post-meta">
-            <span class="post-author">
-              <span style="color: var(--text-muted);">von</span> 
-              <strong>${escapeHtml(post.authorName)}</strong>
-            </span>
-          </div>
-        </div>
-      `).join('');
+            container.innerHTML = posts.map(post => renderNewsBox(post)).join('');
         }
 
         // Filter buttons
@@ -95,13 +78,6 @@
                 loadPosts(btn.dataset.category);
             });
         });
-
-        // Helper function
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
 
         // Initial load
         loadPosts();
