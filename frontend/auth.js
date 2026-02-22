@@ -210,3 +210,61 @@ function updateNavigation() { injectHeader(); }
 function logout() { AuthState.logout(); }
 function checkAuth() { return AuthState.getCurrentUser(); }
 
+function getUsers() {
+  return JSON.parse(localStorage.getItem('community_users') || '[]');
+}
+
+function saveUsers(users) {
+  localStorage.setItem('community_users', JSON.stringify(users));
+}
+
+function getCurrentUser() {
+  return AuthState.getCurrentUser();
+}
+
+function requireAuth() {
+  const user = AuthState.getCurrentUser();
+  if (!user) {
+    window.location.href = 'index.html';
+    return null;
+  }
+  return user;
+}
+
+function requireAdmin() {
+  const user = AuthState.getCurrentUser();
+  if (!user || user.role !== 'admin') {
+    window.location.href = 'index.html';
+    return null;
+  }
+  return user;
+}
+
+function getDisplayName(user) {
+  if (!user) return 'Gast';
+  if (user.profile && (user.profile.firstName || user.profile.lastName)) {
+    return `${user.profile.firstName || ''} ${user.profile.lastName || ''}`.trim();
+  }
+  return user.username;
+}
+function showSuccess(message, elementId = 'success-message') {
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.innerHTML = message;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 5000);
+  } else {
+    alert(message);
+  }
+}
+
+function showError(message, elementId = 'error-message') {
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.innerHTML = message;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 5000);
+  } else {
+    alert('Error: ' + message);
+  }
+}
