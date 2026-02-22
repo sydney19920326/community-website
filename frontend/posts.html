@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beiträge - Community</title>
+    <meta name="description" content="Community Beiträge und News">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="padding-top: 3rem; padding-bottom: 3rem;">
+        <div class="card-header mb-2">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md);">
+                <div>
+                    <h1 class="card-title" style="font-size: 2.5rem;">Community Beiträge</h1>
+                    <p class="card-subtitle">Entdecke die neuesten News und Diskussionen</p>
+                </div>
+                <button id="create-post-btn" class="btn btn-primary hidden">
+                    + Neuen Beitrag erstellen
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-bar mb-2">
+            <button class="filter-btn active" data-category="all">Alle</button>
+            <button class="filter-btn" data-category="News">News</button>
+            <button class="filter-btn" data-category="Ankündigung">Ankündigungen</button>
+            <button class="filter-btn" data-category="Diskussion">Diskussionen</button>
+            <button class="filter-btn" data-category="Tutorial">Tutorials</button>
+        </div>
+
+        <div id="posts-container" class="grid grid-2">
+            <div class="text-center text-muted" style="grid-column: 1 / -1;">
+                Lade Beiträge...
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="posts.js"></script>
+    <script>
+
+        // Create post button
+        document.getElementById('create-post-btn')?.addEventListener('click', () => {
+            window.location.href = 'create-post.html';
+        });
+
+        // Load and display posts
+        let currentCategory = 'all';
+
+        function loadPosts(category = 'all') {
+            currentCategory = category;
+            const posts = getPostsByCategory(category);
+            const container = document.getElementById('posts-container');
+
+            if (posts.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted" style="grid-column: 1 / -1;">Keine Beiträge gefunden</div>';
+                return;
+            }
+
+            container.innerHTML = posts.map(post => `
+        <div class="post-card" onclick="window.location.href='view-post.html?id=${post.id}'">
+          <div class="post-card-header">
+            <span class="category-badge" style="background: ${getCategoryColor(post.category)};">
+              ${post.category}
+            </span>
+            <span class="post-date">${formatRelativeTime(post.createdAt)}</span>
+          </div>
+          <h3 class="post-title">${escapeHtml(post.title)}</h3>
+          <p class="post-preview">${escapeHtml(truncateText(post.content))}</p>
+          <div class="post-meta">
+            <span class="post-author">
+              <span style="color: var(--text-muted);">von</span> 
+              <strong>${escapeHtml(post.authorName)}</strong>
+            </span>
+          </div>
+        </div>
+      `).join('');
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadPosts(btn.dataset.category);
+            });
+        });
+
+        // Helper function
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initial load
+        loadPosts();
+    </script>
+</body>
+
+</html>

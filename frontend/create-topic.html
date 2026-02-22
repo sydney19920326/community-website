@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neues Thema erstellen - Community</title>
+    <meta name="description" content="Neues Forum-Thema erstellen">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="max-width: 900px; padding-top: 3rem; padding-bottom: 3rem;">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title" style="font-size: 2rem;">Neues Thema erstellen</h1>
+                <p class="card-subtitle">Starte eine neue Diskussion</p>
+            </div>
+
+            <div id="error-message" class="alert alert-error hidden"></div>
+            <div id="success-message" class="alert alert-success hidden"></div>
+
+            <form id="create-topic-form">
+                <div class="form-group">
+                    <label for="topic-title" class="form-label">Titel *</label>
+                    <input type="text" id="topic-title" class="form-input"
+                        placeholder="Ein aussagekräftiger Titel für dein Thema" required minlength="5" maxlength="100">
+                    <small class="text-muted">Mindestens 5 Zeichen</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="topic-category" class="form-label">Kategorie *</label>
+                    <select id="topic-category" class="form-input" required>
+                        <option value="">Kategorie wählen...</option>
+                        <option value="Allgemein">Allgemein</option>
+                        <option value="Hilfe">Hilfe</option>
+                        <option value="Feedback">Feedback</option>
+                        <option value="Ankündigung">Ankündigung</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="topic-content" class="form-label">Inhalt *</label>
+                    <textarea id="topic-content" class="form-input" rows="10" required minlength="20"
+                        placeholder="Beschreibe dein Thema..."></textarea>
+                    <small class="text-muted">Mindestens 20 Zeichen</small>
+                </div>
+
+                <div style="display: flex; gap: var(--spacing-md);">
+                    <button type="submit" class="btn btn-primary">Thema erstellen</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='forum.html'">
+                        Abbrechen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="api.js"></script>
+    <script>
+        // Check authentication
+        const currentUser = requireAuth();
+
+        if (currentUser) {
+            document.getElementById('username-display').textContent = currentUser.username;
+        }
+
+        // Form submission
+        document.getElementById('create-topic-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('topic-title').value.trim();
+            const category = document.getElementById('topic-category').value;
+            const content = document.getElementById('topic-content').value.trim();
+
+            // Validation
+            if (title.length < 5) {
+                showError('Der Titel muss mindestens 5 Zeichen lang sein');
+                return;
+            }
+
+            if (content.length < 20) {
+                showError('Der Inhalt muss mindestens 20 Zeichen lang sein');
+                return;
+            }
+
+            if (!category) {
+                showError('Bitte wähle eine Kategorie');
+                return;
+            }
+
+            try {
+                const topic = await ForumAPI.createTopic({ title, content, category });
+                showSuccess('Thema erfolgreich erstellt! Du wirst weitergeleitet...');
+                setTimeout(() => {
+                    window.location.href = `view-topic.html?id=${topic.id}`;
+                }, 1500);
+            } catch (error) {
+                showError(error.message || 'Fehler beim Erstellen des Themas');
+            }
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            AuthAPI.logout();
+        });
+    </script>
+</body>
+
+</html>

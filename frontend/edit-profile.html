@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil bearbeiten - Community</title>
+    <meta name="description" content="Bearbeite dein Profil">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="padding-top: 3rem; padding-bottom: 3rem;">
+        <div class="card-header mb-2">
+            <h1 class="card-title" style="font-size: 2.5rem;">Profil bearbeiten</h1>
+            <p class="card-subtitle">Aktualisiere deine Profilinformationen</p>
+        </div>
+
+        <div id="success-message" class="alert alert-success hidden"></div>
+        <div id="error-message" class="alert alert-error hidden"></div>
+
+        <form id="edit-profile-form">
+            <!-- Persönliche Informationen -->
+            <div class="profile-form-section">
+                <h2 class="profile-form-section-title">Persönliche Informationen</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">Vorname</label>
+                        <input type="text" id="firstName" class="form-input" placeholder="Max">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">Nachname</label>
+                        <input type="text" id="lastName" class="form-input" placeholder="Mustermann">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio" class="form-label">Über mich</label>
+                    <textarea id="bio" class="form-input" rows="4" maxlength="500"
+                        placeholder="Erzähle etwas über dich..."></textarea>
+                    <small class="text-muted">Maximal 500 Zeichen</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="location" class="form-label">Standort</label>
+                        <input type="text" id="location" class="form-input" placeholder="Berlin, Deutschland">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="website" class="form-label">Website</label>
+                        <input type="url" id="website" class="form-input" placeholder="https://example.com">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Avatar -->
+            <div class="profile-form-section">
+                <h2 class="profile-form-section-title">Profilbild</h2>
+
+                <div class="form-group">
+                    <label for="avatarUrl" class="form-label">Avatar-URL</label>
+                    <input type="url" id="avatarUrl" class="form-input" placeholder="https://example.com/avatar.jpg">
+                    <small class="text-muted">Gib die URL eines Bildes ein oder lass das Feld leer für automatische
+                        Initialen</small>
+                </div>
+
+                <div id="avatar-preview" style="margin-top: var(--spacing-md);">
+                    <label class="form-label">Vorschau</label>
+                    <div class="avatar avatar-xl" id="avatar-preview-display"></div>
+                </div>
+            </div>
+
+            <!-- Fähigkeiten & Interessen -->
+            <div class="profile-form-section">
+                <h2 class="profile-form-section-title">Fähigkeiten & Interessen</h2>
+
+                <div class="form-group">
+                    <label for="skills-input" class="form-label">Fähigkeiten</label>
+                    <div class="tag-input-container" id="skills-container">
+                        <input type="text" id="skills-input" placeholder="Fähigkeit hinzufügen und Enter drücken">
+                    </div>
+                    <small class="text-muted">Drücke Enter nach jeder Fähigkeit</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="interests-input" class="form-label">Interessen</label>
+                    <div class="tag-input-container" id="interests-container">
+                        <input type="text" id="interests-input" placeholder="Interesse hinzufügen und Enter drücken">
+                    </div>
+                    <small class="text-muted">Drücke Enter nach jedem Interesse</small>
+                </div>
+            </div>
+
+            <!-- Social Media -->
+            <div class="profile-form-section">
+                <h2 class="profile-form-section-title">Social Media</h2>
+
+                <div class="form-group">
+                    <label for="twitter" class="form-label">🐦 Twitter</label>
+                    <input type="url" id="twitter" class="form-input" placeholder="https://twitter.com/username">
+                </div>
+
+                <div class="form-group">
+                    <label for="github" class="form-label">💻 GitHub</label>
+                    <input type="url" id="github" class="form-input" placeholder="https://github.com/username">
+                </div>
+
+                <div class="form-group">
+                    <label for="linkedin" class="form-label">💼 LinkedIn</label>
+                    <input type="url" id="linkedin" class="form-input" placeholder="https://linkedin.com/in/username">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display: flex; gap: var(--spacing-md); justify-content: flex-end;">
+                <a href="profile.html" class="btn btn-secondary">Abbrechen</a>
+                <button type="submit" class="btn btn-primary">Änderungen speichern</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="edit-profile.js"></script>
+</body>
+
+</html>

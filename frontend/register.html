@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrierung - Community</title>
+    <meta name="description" content="Erstelle ein neues Community-Konto">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="max-width: 450px; padding-top: 3rem; padding-bottom: 3rem;">
+        <div class="card">
+            <div class="card-header text-center">
+                <h1 class="logo" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Community</h1>
+                <p class="card-subtitle">Erstelle dein Konto und werde Teil unserer Community</p>
+            </div>
+
+            <div id="error-message" class="alert alert-error hidden"></div>
+            <div id="success-message" class="alert alert-success hidden"></div>
+
+            <form id="api-register-form">
+                <div class="form-group">
+                    <label for="reg-username" class="form-label">Benutzername</label>
+                    <input type="text" id="reg-username" class="form-input" placeholder="Wähle einen Benutzernamen"
+                        required minlength="3" autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-email" class="form-label">E-Mail</label>
+                    <input type="email" id="reg-email" class="form-input" placeholder="deine@email.de" required
+                        autocomplete="email">
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-password" class="form-label">Passwort</label>
+                    <input type="password" id="reg-password" class="form-input" placeholder="Mindestens 6 Zeichen"
+                        required minlength="6" autocomplete="new-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-password-confirm" class="form-label">Passwort bestätigen</label>
+                    <input type="password" id="reg-password-confirm" class="form-input"
+                        placeholder="Passwort wiederholen" required minlength="6" autocomplete="new-password">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Konto erstellen
+                </button>
+            </form>
+
+            <div class="text-center mt-2">
+                <p class="text-muted">
+                    Bereits ein Konto?
+                    <a href="login.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                        Jetzt anmelden
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        const registerForm = document.getElementById('api-register-form');
+        if (registerForm) {
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const username = document.getElementById('reg-username').value.trim();
+                const email = document.getElementById('reg-email').value.trim();
+                const password = document.getElementById('reg-password').value;
+                const passwordConfirm = document.getElementById('reg-password-confirm').value;
+                const errorEl = document.getElementById('error-message');
+                const successEl = document.getElementById('success-message');
+
+                if (password !== passwordConfirm) {
+                    if (errorEl) {
+                        errorEl.textContent = 'Passwörter stimmen nicht überein';
+                        errorEl.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                try {
+                    await AuthAPI.register(username, email, password);
+
+                    // Success
+                    if (successEl) {
+                        successEl.textContent = 'Registrierung erfolgreich! Du wirst weitergeleitet...';
+                        successEl.classList.remove('hidden');
+                    }
+                    if (errorEl) errorEl.classList.add('hidden');
+
+                    // Redirect
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+
+                } catch (error) {
+                    if (errorEl) {
+                        errorEl.textContent = error.message || 'Registrierung fehlgeschlagen';
+                        errorEl.classList.remove('hidden');
+                    }
+                    if (successEl) successEl.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

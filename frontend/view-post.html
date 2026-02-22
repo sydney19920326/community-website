@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beitrag - Community</title>
+  <meta name="description" content="Community Beitrag">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="animated-bg"></div>
+  <header id="global-header"></header>
+
+  <div class="container" style="max-width: 900px; padding-top: 3rem; padding-bottom: 3rem;">
+    <div style="margin-bottom: var(--spacing-lg);">
+      <a href="posts.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+        ← Zurück zu allen Beiträgen
+      </a>
+    </div>
+
+    <div class="card">
+      <div id="post-content-container">
+        <div class="text-center text-muted">Lade Beitrag...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="posts.js"></script>
+  <script>
+    // Check authentication
+    const currentUser = checkAuth();
+    updateNavigation();
+
+    // Get post ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
+
+    if (!postId) {
+      window.location.href = 'posts.html';
+    }
+
+    // Load post
+    async function loadPost() {
+      try {
+        const post = await PostsAPI.getById(postId);
+        displayPost(post);
+      } catch (error) {
+        console.error('Error loading post:', error);
+        document.getElementById('post-content-container').innerHTML = `
+          <div class="card">
+            <div class="text-center text-muted">Beitrag nicht gefunden</div>
+          </div>
+        `;
+      }
+    }
+
+    function displayPost(post) {
+      const isAuthor = currentUser && currentUser.id === post.authorId;
+      const isAdmin = currentUser && currentUser.role === 'admin';
+      const showControls = isAuthor || isAdmin;
+
+      let controlsHtml = '';
+      if (showControls) {
+        controlsHtml = `
+          <div style="display: flex; gap: var(--spacing-sm);">
+            <button onclick="window.location.href='edit-post.html?id=${post.id}'" class="btn btn-secondary btn-sm">
+              Bearbeiten
+            </button>
+            <button onclick="deletePost(${post.id})" class="btn btn-danger btn-sm">
+              Löschen
+            </button>
+          </div>
+        `;
+      }
+
+      document.getElementById('post-content-container').innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md);">
+          <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+            <span class="category-badge">${escapeHtml(post.category)}</span>
+            <span class="post-date">${formatDate(post.createdAt)}</span>
+          </div>
+          ${controlsHtml}
+        </div>
+        ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 100%; border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">` : ''}
+        <h1 class="card-title" style="font-size: 2rem; margin-bottom: var(--spacing-md);">
+          ${escapeHtml(post.title)}
+        </h1>
+        <div class="post-meta" style="margin-bottom: var(--spacing-lg);">
+          von <strong>${escapeHtml(post.authorName)}</strong>
+        </div>
+        <div class="post-content-body">
+          ${escapeHtml(post.content).replace(/\n/g, '<br>')}
+        </div>
+        <div style="margin-top: var(--spacing-xl);">
+          <a href="posts.html" class="btn btn-secondary">← Zurück zur Übersicht</a>
+        </div>
+      `;
+
+      document.title = `${post.title} - Community`;
+    }
+
+    async function deletePost(id) {
+      if (!confirm('Möchtest du diesen Beitrag wirklich löschen?')) return;
+
+      try {
+        await PostsAPI.delete(id);
+        window.location.href = 'posts.html';
+      } catch (error) {
+        alert('Fehler beim Löschen des Beitrags');
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Update page title
+    if (post) {
+      document.title = `${post.title} - Community`;
+    }
+  </script>
+</body>
+
+</html>

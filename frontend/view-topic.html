@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum-Thema - Community</title>
+    <meta name="description" content="Forum-Thema">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="max-width: 900px; padding-top: 3rem; padding-bottom: 3rem;">
+        <div style="margin-bottom: var(--spacing-lg);">
+            <a href="forum.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                ← Zurück zum Forum
+            </a>
+        </div>
+
+        <div id="topic-container">
+            <div class="card">
+                <div class="text-center text-muted">Lade Thema...</div>
+            </div>
+        </div>
+
+        <div id="replies-container" class="mt-2"></div>
+
+        <div class="card mt-2" id="reply-form-container">
+            <h3 class="card-title">Antwort schreiben</h3>
+            <div id="error-message" class="alert alert-error hidden"></div>
+            <form id="reply-form">
+                <div class="form-group">
+                    <textarea id="reply-content" class="form-input" rows="5" required minlength="10"
+                        placeholder="Schreibe deine Antwort..."></textarea>
+                    <small class="text-muted">Mindestens 10 Zeichen</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Antwort senden</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="api.js"></script>
+    <script>
+        // Check authentication
+        const currentUser = checkAuth();
+        updateNavigation();
+
+        if (currentUser) {
+            document.getElementById('username-display').textContent = currentUser.username;
+        } else {
+            // Hide reply form for guests
+            document.getElementById('reply-form-container').innerHTML = `
+                <div class="alert alert-info">
+                    Bitte <a href="login.html">melde dich an</a>, um zu antworten.
+                </div>
+            `;
+        }
+
+        // Get topic ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const topicId = urlParams.get('id');
+
+        if (!topicId) {
+            window.location.href = 'forum.html';
+        }
+
+        // Load topic
+        async function loadTopic() {
+            try {
+                const topic = await ForumAPI.getTopic(topicId);
+                displayTopic(topic);
+                displayReplies(topic.replies || []);
+
+                // Hide reply form if locked
+                if (topic.locked) {
+                    document.getElementById('reply-form-container').innerHTML = `
+                        <div class="alert alert-warning">
+                            Dieses Thema ist gesperrt. Keine neuen Antworten möglich.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading topic:', error);
+                document.getElementById('topic-container').innerHTML = `
+                    <div class="card">
+                        <div class="text-center text-muted">Thema nicht gefunden</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Display topic
+        function displayTopic(topic) {
+            const isPinned = topic.pinned === 1;
+            const isLocked = topic.locked === 1;
+            const categoryColor = getCategoryColor(topic.category);
+            const isAdmin = currentUser && currentUser.role === 'admin';
+
+            document.getElementById('topic-container').innerHTML = `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md);">
+                        <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                            ${isPinned ? '<span style="color: var(--primary);">📌</span>' : ''}
+                            ${isLocked ? '<span style="color: var(--text-muted);">🔒</span>' : ''}
+                            <span class="category-badge" style="background: ${categoryColor};">
+                                ${escapeHtml(topic.category)}
+                            </span>
+                        </div>
+                        ${isAdmin ? `
+                            <div style="display: flex; gap: var(--spacing-sm);">
+                                <button onclick="togglePin(${topic.id}, ${!isPinned})" class="btn btn-secondary btn-sm">
+                                    ${isPinned ? 'Unpin' : 'Pin'}
+                                </button>
+                                <button onclick="toggleLock(${topic.id}, ${!isLocked})" class="btn btn-secondary btn-sm">
+                                    ${isLocked ? 'Unlock' : 'Lock'}
+                                </button>
+                                <button onclick="deleteTopic(${topic.id})" class="btn btn-danger btn-sm">
+                                    Löschen
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <h1 class="card-title" style="font-size: 2rem; margin-bottom: var(--spacing-md);">
+                        ${escapeHtml(topic.title)}
+                    </h1>
+                    <div class="post-meta" style="display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <span style="color: var(--text-secondary);">
+                            von <strong>${escapeHtml(topic.authorName)}</strong>
+                        </span>
+                        <span style="color: var(--text-muted);">•</span>
+                        <span style="color: var(--text-secondary);">
+                            ${formatDate(topic.createdAt)}
+                        </span>
+                        <span style="color: var(--text-muted);">•</span>
+                        <span style="color: var(--text-secondary);">
+                            👁️ ${topic.views} Aufrufe
+                        </span>
+                    </div>
+                    <div class="post-content-body">
+                        ${escapeHtml(topic.content).replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `;
+
+            document.title = `${topic.title} - Community Forum`;
+        }
+
+        // Display replies
+        function displayReplies(replies) {
+            const container = document.getElementById('replies-container');
+
+            if (replies.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <h3 style="color: var(--text-primary); margin-bottom: var(--spacing-md);">
+                    ${replies.length} ${replies.length === 1 ? 'Antwort' : 'Antworten'}
+                </h3>
+                ${replies.map(reply => `
+                    <div class="card mb-1">
+                        <div class="post-meta" style="margin-bottom: var(--spacing-md);">
+                            <strong>${escapeHtml(reply.authorName)}</strong>
+                            <span style="color: var(--text-muted);"> • </span>
+                            <span style="color: var(--text-secondary);">${formatDate(reply.createdAt)}</span>
+                        </div>
+                        <div class="post-content-body">
+                            ${escapeHtml(reply.content).replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Submit reply
+        document.getElementById('reply-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const content = document.getElementById('reply-content').value.trim();
+
+            if (content.length < 10) {
+                showError('Die Antwort muss mindestens 10 Zeichen lang sein');
+                return;
+            }
+
+            try {
+                await ForumAPI.addReply(topicId, content);
+                document.getElementById('reply-content').value = '';
+                loadTopic(); // Reload to show new reply
+            } catch (error) {
+                showError(error.message || 'Fehler beim Senden der Antwort');
+            }
+        });
+
+        // Admin functions
+        async function togglePin(id, pinned) {
+            try {
+                await ForumAPI.updateTopic(id, { pinned, locked: false });
+                loadTopic();
+            } catch (error) {
+                alert('Fehler beim Aktualisieren des Themas');
+            }
+        }
+
+        async function toggleLock(id, locked) {
+            try {
+                await ForumAPI.updateTopic(id, { pinned: false, locked });
+                loadTopic();
+            } catch (error) {
+                alert('Fehler beim Aktualisieren des Themas');
+            }
+        }
+
+        async function deleteTopic(id) {
+            if (!confirm('Möchtest du dieses Thema wirklich löschen?')) return;
+
+            try {
+                await ForumAPI.deleteTopic(id);
+                window.location.href = 'forum.html';
+            } catch (error) {
+                alert('Fehler beim Löschen des Themas');
+            }
+        }
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            AuthAPI.logout();
+        });
+
+        // Initialize
+        loadTopic();
+    </script>
+</body>
+
+</html>

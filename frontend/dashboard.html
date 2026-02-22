@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Dashboard</title>
+    <meta name="description" content="Dein Community Dashboard">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="padding-top: 3rem; padding-bottom: 3rem;">
+        <div class="card-header mb-2">
+            <h1 class="card-title" style="font-size: 2.5rem;">Willkommen zurück!</h1>
+            <p class="card-subtitle">Hier ist dein persönliches Community-Dashboard</p>
+        </div>
+
+        <div class="grid grid-3 mb-2">
+            <div class="stat-card">
+                <div class="stat-value">127</div>
+                <div class="stat-label">Mitglieder</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="user-posts-count">0</div>
+                <div class="stat-label">Meine Beiträge</div>
+            </div>
+            <div class="stat-card" onclick="window.location.href='create-post.html'" style="cursor: pointer;">
+                <div class="stat-value" style="font-size: 2rem;">+</div>
+                <div class="stat-label">Neuer Beitrag</div>
+            </div>
+        </div>
+
+        <div class="grid grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title" style="font-size: 1.5rem;">Neueste Aktivitäten</h2>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                    <div
+                        style="padding: var(--spacing-md); background: var(--bg-dark); border-radius: var(--radius-md); border-left: 3px solid var(--primary);">
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">Max Mustermann</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Hat einen neuen Beitrag erstellt
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">vor 2 Stunden
+                        </div>
+                    </div>
+                    <div
+                        style="padding: var(--spacing-md); background: var(--bg-dark); border-radius: var(--radius-md); border-left: 3px solid var(--secondary);">
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">Anna Schmidt</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Hat deinen Beitrag kommentiert
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">vor 5 Stunden
+                        </div>
+                    </div>
+                    <div
+                        style="padding: var(--spacing-md); background: var(--bg-dark); border-radius: var(--radius-md); border-left: 3px solid var(--accent);">
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">Tom Weber</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Ist der Community beigetreten
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem;">vor 1 Tag</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title" style="font-size: 1.5rem;">Dein Profil</h2>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+                    <div>
+                        <div class="form-label">Benutzername</div>
+                        <div style="color: var(--text-primary); font-weight: 600;" id="profile-username"></div>
+                    </div>
+                    <div>
+                        <div class="form-label">Rolle</div>
+                        <div id="profile-role"></div>
+                    </div>
+                    <div>
+                        <div class="form-label">Mitglied seit</div>
+                        <div style="color: var(--text-secondary);" id="profile-joined">Februar 2026</div>
+                    </div>
+                    <div>
+                        <div class="form-label">Beiträge</div>
+                        <div style="color: var(--text-secondary);" id="profile-posts-count">0 Beiträge</div>
+                    </div>
+                    <div>
+                        <a href="create-post.html" class="btn btn-primary btn-sm"
+                            style="width: 100%; margin-top: var(--spacing-sm);">
+                            + Neuen Beitrag erstellen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="posts.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

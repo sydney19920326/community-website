@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum - Community</title>
+    <meta name="description" content="Community Forum">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="padding-top: 3rem; padding-bottom: 3rem;">
+        <div class="card-header mb-2" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 class="card-title">Community Forum</h1>
+                <p class="card-subtitle">Diskutiere mit der Community</p>
+            </div>
+            <button class="btn btn-primary" onclick="window.location.href='create-topic.html'">
+                Neues Thema erstellen
+            </button>
+        </div>
+
+        <div class="filter-bar mb-2">
+            <button class="btn btn-secondary btn-sm active" data-category="all">Alle</button>
+            <button class="btn btn-secondary btn-sm" data-category="Allgemein">Allgemein</button>
+            <button class="btn btn-secondary btn-sm" data-category="Hilfe">Hilfe</button>
+            <button class="btn btn-secondary btn-sm" data-category="Feedback">Feedback</button>
+            <button class="btn btn-secondary btn-sm" data-category="Ankündigung">Ankündigung</button>
+        </div>
+
+        <div id="topics-container">
+            <div class="text-center text-muted">Lade Themen...</div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="api.js"></script>
+    <script src="forum.js"></script>
+</body>
+
+</html>

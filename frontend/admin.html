@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Community</title>
+    <meta name="description" content="Community Admin Dashboard">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div id="admin-content" style="display: none;">
+        <div class="admin-layout">
+            <!-- Sidebar Navigation -->
+            <aside class="admin-sidebar">
+                <div class="admin-nav-item active" data-tab="overview">
+                    <span class="admin-nav-icon">📊</span>
+                    <span class="admin-nav-text">Übersicht</span>
+                </div>
+                <div class="admin-nav-item" data-tab="users">
+                    <span class="admin-nav-icon">👥</span>
+                    <span class="admin-nav-text">Benutzer</span>
+                </div>
+                <div class="admin-nav-item" data-tab="posts">
+                    <span class="admin-nav-icon">📝</span>
+                    <span class="admin-nav-text">Beiträge</span>
+                </div>
+                <div class="admin-nav-item" data-tab="settings">
+                    <span class="admin-nav-icon">⚙️</span>
+                    <span class="admin-nav-text">Einstellungen</span>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="admin-main">
+                <!-- Overview Tab -->
+                <div class="tab-content active" id="overview-tab">
+                    <div class="admin-page-header">
+                        <div>
+                            <h1 class="admin-page-title">Admin Dashboard</h1>
+                            <p class="card-subtitle">Willkommen zurück, <span id="admin-name">Admin</span>!</p>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Stats Grid -->
+                    <div class="admin-stats-grid">
+                        <div class="admin-stat-card">
+                            <div class="admin-stat-icon-wrapper">👥</div>
+                            <div class="admin-stat-info">
+                                <span class="admin-stat-label">Gesamt Benutzer</span>
+                                <span class="admin-stat-value" id="total-users">0</span>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card" style="border-left: 4px solid var(--secondary);">
+                            <div class="admin-stat-icon-wrapper"
+                                style="color: var(--secondary); background: rgba(237, 100, 166, 0.1);">📝</div>
+                            <div class="admin-stat-info">
+                                <span class="admin-stat-label">Gesamt Beiträge</span>
+                                <span class="admin-stat-value" id="total-posts">0</span>
+                            </div>
+                        </div>
+                        <div class="admin-stat-card" style="border-left: 4px solid var(--accent);">
+                            <div class="admin-stat-icon-wrapper"
+                                style="color: var(--accent); background: rgba(240, 147, 251, 0.1);">🛡️</div>
+                            <div class="admin-stat-info">
+                                <span class="admin-stat-label">Administratoren</span>
+                                <span class="admin-stat-value" id="admin-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="admin-card">
+                            <div class="admin-card-header">
+                                <h3 class="card-title" style="font-size: 1.25rem;">Neueste Benutzer</h3>
+                                <button class="btn btn-secondary btn-sm" onclick="showTab('users')">Alle
+                                    ansehen</button>
+                            </div>
+                            <div class="admin-table-container">
+                                <table class="admin-table">
+                                    <tbody id="recent-users-list">
+                                        <!-- Dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="admin-card">
+                            <div class="admin-card-header">
+                                <h3 class="card-title" style="font-size: 1.25rem;">System-Status</h3>
+                            </div>
+                            <div style="padding: var(--spacing-xl);">
+                                <div style="margin-bottom: var(--spacing-md);">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span class="text-secondary">Speicherplatz</span>
+                                        <span class="text-primary">45%</span>
+                                    </div>
+                                    <div
+                                        style="height: 8px; background: var(--bg-dark); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: 45%; height: 100%; background: var(--primary);"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: var(--spacing-md);">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span class="text-secondary">Datenbank-Auslastung</span>
+                                        <span class="text-secondary">12%</span>
+                                    </div>
+                                    <div
+                                        style="height: 8px; background: var(--bg-dark); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: 12%; height: 100%; background: var(--secondary);"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Tab -->
+                <div class="tab-content" id="users-tab">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Benutzerverwaltung</h1>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <h3 class="card-title" style="font-size: 1.25rem;">Mitgliederliste</h3>
+                            <div style="display: flex; gap: var(--spacing-md);">
+                                <input type="text" id="user-search" class="form-input"
+                                    style="max-width: 250px; padding: 0.5rem 1rem;" placeholder="Benutzer suchen...">
+                            </div>
+                        </div>
+
+                        <div id="success-message" class="alert alert-success hidden"></div>
+                        <div id="error-message" class="alert alert-error hidden"></div>
+
+                        <div class="admin-table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Benutzername</th>
+                                        <th>E-Mail</th>
+                                        <th>Rolle</th>
+                                        <th>Datum</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Lade Benutzer...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="admin-card mt-2">
+                        <div class="admin-card-header">
+                            <h3 class="card-title" style="font-size: 1.25rem;">Neuen Benutzer hinzufügen</h3>
+                        </div>
+                        <div style="padding: var(--spacing-xl);">
+                            <form id="add-user-form">
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label for="new-username" class="form-label">Benutzername</label>
+                                        <input type="text" id="new-username" class="form-input"
+                                            placeholder="Benutzername" required minlength="3">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="new-email" class="form-label">E-Mail</label>
+                                        <input type="email" id="new-email" class="form-input"
+                                            placeholder="email@beispiel.de" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="new-password" class="form-label">Passwort</label>
+                                        <input type="password" id="new-password" class="form-input"
+                                            placeholder="Passwort" required minlength="6">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="new-role" class="form-label">Rolle</label>
+                                        <select id="new-role" class="form-input" required>
+                                            <option value="user">Benutzer</option>
+                                            <option value="admin">Administrator</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Benutzer hinzufügen</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Posts Tab -->
+                <div class="tab-content" id="posts-tab">
+                    <div class="admin-page-header">
+                        <h1 class="admin-page-title">Post-Verwaltung</h1>
+                    </div>
+
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <h3 class="card-title" style="font-size: 1.25rem;">Beiträge verwalten</h3>
+                        </div>
+
+                        <div id="posts-success-message" class="alert alert-success hidden"></div>
+                        <div id="posts-error-message" class="alert alert-error hidden"></div>
+
+                        <div class="admin-table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Titel</th>
+                                        <th>Autor</th>
+                                        <th>Kategorie</th>
+                                        <th>Datum</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="posts-table">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Lade Beiträge...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="posts.js"></script>
+    <script src="admin.js"></script>
+</body>
+
+</html>

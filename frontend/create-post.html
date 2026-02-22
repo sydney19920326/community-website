@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beitrag erstellen - Community</title>
+    <meta name="description" content="Erstelle einen neuen Beitrag">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="max-width: 900px; padding-top: 3rem; padding-bottom: 3rem;">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title" style="font-size: 2rem;">Neuen Beitrag erstellen</h1>
+                <p class="card-subtitle">Teile deine Gedanken mit der Community</p>
+            </div>
+
+            <div id="error-message" class="alert alert-error hidden"></div>
+            <div id="success-message" class="alert alert-success hidden"></div>
+
+            <form id="create-post-form">
+                <div class="form-group">
+                    <label for="post-title" class="form-label">Titel *</label>
+                    <input type="text" id="post-title" class="form-input"
+                        placeholder="Ein aussagekräftiger Titel für deinen Beitrag" required minlength="5"
+                        maxlength="100">
+                    <small class="text-muted">Mindestens 5 Zeichen</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="post-category" class="form-label">Kategorie *</label>
+                    <select id="post-category" class="form-input" required>
+                        <option value="">Kategorie wählen...</option>
+                        <option value="News">News</option>
+                        <option value="Ankündigung">Ankündigung</option>
+                        <option value="Diskussion">Diskussion</option>
+                        <option value="Tutorial">Tutorial</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="post-content" class="form-label">Inhalt *</label>
+                    <textarea id="post-content" class="form-input" rows="10" required minlength="20"
+                        placeholder="Schreibe deinen Beitrag..."></textarea>
+                    <small class="text-muted">Mindestens 20 Zeichen</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="post-image" class="form-label">Bild (optional)</label>
+                    <input type="url" id="post-image" class="form-input" placeholder="https://example.com/image.jpg">
+                    <small class="text-muted">Gib die URL eines Bildes ein</small>
+                </div>
+
+                <div id="image-preview" class="hidden" style="margin-top: var(--spacing-md);">
+                    <label class="form-label">Bildvorschau</label>
+                    <img id="preview-img" src="" alt="Vorschau"
+                        style="max-width: 100%; max-height: 300px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                </div>
+
+                <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary">
+                        Veröffentlichen
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='posts.html'">
+                        Abbrechen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="posts.js"></script>
+    <script>
+        // Require authentication
+        const user = requireAuth();
+
+        if (user) {
+            document.getElementById('username-display').textContent = user.username;
+
+            if (user.role === 'admin') {
+                document.getElementById('admin-link').classList.remove('hidden');
+            }
+        }
+
+        // Form submission
+        const form = document.getElementById('create-post-form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('post-title').value.trim();
+            const category = document.getElementById('post-category').value;
+            const content = document.getElementById('post-content').value.trim();
+            const imageUrl = document.getElementById('post-image').value.trim();
+
+            // Validation
+            if (title.length < 5) {
+                showError('Der Titel muss mindestens 5 Zeichen lang sein');
+                return;
+            }
+
+            if (content.length < 20) {
+                showError('Der Inhalt muss mindestens 20 Zeichen lang sein');
+                return;
+            }
+
+            if (!category) {
+                showError('Bitte wähle eine Kategorie');
+                return;
+            }
+
+            // Create post
+            const newPost = createPost(title, content, category, user, imageUrl);
+
+            if (newPost) {
+                showSuccess('Beitrag erfolgreich erstellt! Du wirst weitergeleitet...');
+                setTimeout(() => {
+                    window.location.href = `view-post.html?id=${newPost.id}`;
+                }, 1500);
+            } else {
+                showError('Fehler beim Erstellen des Beitrags');
+            }
+        });
+
+        // Image preview
+        document.getElementById('post-image').addEventListener('input', (e) => {
+            const imageUrl = e.target.value.trim();
+            const preview = document.getElementById('image-preview');
+            const previewImg = document.getElementById('preview-img');
+
+            if (imageUrl) {
+                previewImg.src = imageUrl;
+                preview.classList.remove('hidden');
+
+                // Hide preview if image fails to load
+                previewImg.onerror = () => {
+                    preview.classList.add('hidden');
+                };
+            } else {
+                preview.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

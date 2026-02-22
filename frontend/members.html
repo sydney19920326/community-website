@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitglieder - Community</title>
+    <meta name="description" content="Community Mitglieder">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <header id="global-header"></header>
+
+    <div class="container" style="padding-top: 3rem; padding-bottom: 3rem;">
+        <div class="card-header mb-2">
+            <h1 class="card-title" style="font-size: 2.5rem;">Community-Mitglieder</h1>
+            <p class="card-subtitle">Entdecke alle Mitglieder unserer Community</p>
+        </div>
+
+        <div class="filter-bar mb-2">
+            <button class="btn btn-secondary btn-sm active" data-filter="all">
+                Alle (<span id="count-all">0</span>)
+            </button>
+            <button class="btn btn-secondary btn-sm" data-filter="admin">
+                Admins (<span id="count-admin">0</span>)
+            </button>
+            <button class="btn btn-secondary btn-sm" data-filter="user">
+                Mitglieder (<span id="count-user">0</span>)
+            </button>
+        </div>
+
+        <script>
+            // Check authentication
+            const currentUser = checkAuth();
+            updateNavigation();
+        </script>
+
+        <div class="grid grid-3" id="members-container">
+            <div class="text-center text-muted" style="grid-column: 1 / -1;">Lade Mitglieder...</div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="members.js"></script>
+</body>
+
+</html>

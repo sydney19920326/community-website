@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Login</title>
+  <meta name="description" content="Melde dich bei unserer Community an">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="animated-bg"></div>
+  <header id="global-header"></header>
+
+  <div class="container" style="max-width: 450px; padding-top: 5rem;">
+    <div class="card">
+      <div class="card-header text-center">
+        <h1 class="logo" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Community</h1>
+        <p class="card-subtitle">Willkommen zurück! Bitte melde dich an.</p>
+      </div>
+
+      <div id="error-message" class="alert alert-error hidden"></div>
+      <div id="success-message" class="alert alert-success hidden"></div>
+
+      <form id="api-login-form">
+        <div class="form-group">
+          <label for="username" class="form-label">Benutzername</label>
+          <input type="text" id="username" class="form-input" placeholder="Dein Benutzername" required
+            autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Passwort</label>
+          <input type="password" id="password" class="form-input" placeholder="Dein Passwort" required
+            autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+          Anmelden
+        </button>
+      </form>
+
+      <div class="text-center mt-2">
+        <p class="text-muted">
+          Noch kein Konto?
+          <a href="register.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+            Jetzt registrieren
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="text-center mt-2 text-muted" style="font-size: 0.85rem;">
+      <p>Demo-Zugangsdaten:</p>
+      <p><strong>Admin:</strong> admin / admin123</p>
+      <p><strong>Benutzer:</strong> user / user123</p>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    const loginForm = document.getElementById('api-login-form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const errorEl = document.getElementById('error-message');
+        const successEl = document.getElementById('success-message');
+
+        try {
+          await AuthAPI.login(username, password);
+
+          // Success
+          if (successEl) {
+            successEl.textContent = 'Erfolgreich eingeloggt!';
+            successEl.classList.remove('hidden');
+          }
+          if (errorEl) errorEl.classList.add('hidden');
+
+          // Redirect based on role (check localstorage or just go to dashboard)
+          setTimeout(() => {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user && user.role === 'admin') {
+              window.location.href = 'admin.html';
+            } else {
+              window.location.href = 'dashboard.html';
+            }
+          }, 500);
+
+        } catch (error) {
+          if (errorEl) {
+            errorEl.textContent = error.message || 'Login fehlgeschlagen';
+            errorEl.classList.remove('hidden');
+          }
+          if (successEl) successEl.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>
